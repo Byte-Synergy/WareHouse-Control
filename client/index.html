@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>StockMaster Lite - 在庫管理</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="https://cdn.jsdelivr.net/npm/vue@3/dist/vue.global.js"></script>
+</head>
+<body>
+  <div id="app">
+    <!-- Login Screen -->
+    <div v-if="!isAuthenticated" class="login-container">
+      <div class="login-box">
+        <h1>StockMaster Lite</h1>
+        <h2>ログイン</h2>
+        <form @submit.prevent="login">
+          <div class="form-group">
+            <label>ユーザー名</label>
+            <input 
+              type="text" 
+              v-model="loginForm.username" 
+              required 
+              autocomplete="username"
+            >
+          </div>
+          <div class="form-group">
+            <label>パスワード</label>
+            <input 
+              type="password" 
+              v-model="loginForm.password" 
+              required
+              autocomplete="current-password"
+            >
+          </div>
+          <div v-if="loginError" class="error">{{ loginError }}</div>
+          <button type="submit" class="btn btn-primary">ログイン</button>
+        </form>
+      </div>
+    </div>
+
+    <!-- Main Application -->
+    <div v-else>
+      <!-- Navigation -->
+      <nav class="navbar">
+        <div class="nav-brand">StockMaster Lite</div>
+        <div class="nav-items">
+          <span class="nav-user">{{ username }}</span>
+          <button @click="logout" class="btn btn-secondary">ログアウト</button>
+        </div>
+      </nav>
+
+      <!-- Dashboard -->
+      <div class="container">
+        <div class="header">
+          <h1>商品管理</h1>
+          <div class="header-actions">
+            <button @click="showLowStockOnly = !showLowStockOnly" 
+                    :class="['btn', showLowStockOnly ? 'btn-warning' : 'btn-secondary']">
+              {{ showLowStockOnly ? '全商品表示' : '低在庫のみ表示' }}
+            </button>
+            <button @click="exportCSV" class="btn btn-success">CSV出力</button>
+            <button @click="showAddModal = true" class="btn btn-primary">+ 商品追加</button>
+          </div>
+        </div>
+
+        <!-- Low Stock Alert Banner -->
+        <div v-if="lowStockCount > 0" class="alert alert-warning">
+          ⚠️ {{ lowStockCount }}件の商品が在庫不足です
+        </div>
+
+        <!-- Alert Message -->
+        <div v-if="alertMessage" :class="['alert', alertType]">
+          {{ alertMessage }}
+        </div>
+
+        <!-- Products Table -->
+        <div class="table-container">
+          <!-- Loading Indicator -->
+          <div v-if="isLoading" class="loading-indicator">
+            <div class="spinner"></div>
+            <p>読み込み中...</p>
+          </div>
+          
+          <table v-else>
+            <thead>
+              <tr>
+                <th>SKU</th>
+                <th>商品名</th>
+                <th>カテゴリ</th>
+                <th>現在庫</th>
+                <th>最小在庫</th>
+                <th>説明</th>
+                <th>操作</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-if="filteredProducts.length === 0">
+                <td colspan="8" class="text-center">商品がありません</td>
+              </tr>
+              <tr v-for="product in filteredProducts" :key="product.id">
+                <td>{{ product.sku }}</td>
+                <td>{{ product.name }}</td>
+                <td>{{ product.category }}</td>
+                <td :class="{'low-stock': product.current_stock <= product.min_stock}">
+                  {{ product.current_stock }}
+                </td>
+                <td>{{ product.min_stock }}</td>
+                <td>{{ product.description }}</td>
+                <td>
+                  <button @click="showStockModal(product)" class="btn btn-sm btn-info">在庫操作</button>
+                  <button @click="editProduct(product)" class="btn btn-sm">編集</button>
+                  <button @click="deleteProduct(product.id)" class="btn btn-sm btn-danger">削除</button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Add/Edit Product Modal -->
+      <div v-if="showAddModal || showEditModal" class="modal" @click.self="closeModal">
+        <div class="modal-content">
+          <h2>{{ showEditModal ? '商品編集' : '商品追加' }}</h2>
+          <form @submit.prevent="saveProduct">
+            <div class="form-group">
+              <label>SKU *</label>
+              <input 
+                type="text" 
+                v-model.trim="productForm.sku" 
+                required 
+                maxlength="50"
+                placeholder="例: PROD-001"
+              >
+            </div>
+            <div class="form-group">
+              <label>商品名 *</label>
+              <input 
+                type="text" 
+                v-model.trim="productForm.name" 
+                required
+                maxlength="100"
+                placeholder="例: ノートパソコン"
+              >
+            </div>
+            <div class="form-group">
+              <label>カテゴリ</label>
+              <input 
+                type="text" 
+                v-model.trim="productForm.category"
+                maxlength="50"
+                placeholder="例: 電子機器"
+              >
+            </div>
+            <div class="form-group">
+              <label>説明</label>
+              <textarea 
+                v-model.trim="productForm.description" 
+                rows="3"
+                maxlength="500"
+                placeholder="商品の詳細説明を入力してください"
+              ></textarea>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label>現在庫</label>
+                <input 
+                  type="number" 
+                  v-model.number="productForm.current_stock" 
+                  min="0"
+                  max="999999"
+                  step="1"
+                >
+              </div>
+              <div class="form-group">
+                <label>最小在庫</label>
+                <input 
+                  type="number" 
+                  v-model.number="productForm.min_stock" 
+                  min="0"
+                  max="999999"
+                  step="1"
+                >
+              </div>
+            </div>
+            <div class="modal-actions">
+              <button type="button" @click="closeModal" class="btn btn-secondary">キャンセル</button>
+              <button type="submit" class="btn btn-primary">保存</button>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <!-- Stock In/Out Modal -->
+      <div v-if="showStockInOutModal" class="modal" @click.self="closeStockModal">
+        <div class="modal-content">
+          <h2>在庫操作: {{ selectedProduct.name }}</h2>
+          <p class="stock-info">現在庫: <strong>{{ selectedProduct.current_stock }}</strong></p>
+          
+          <div class="stock-tabs">
+            <button 
+              @click="stockOperation = 'in'" 
+              :class="['tab-btn', stockOperation === 'in' ? 'active' : '']">
+              入庫
+            </button>
+            <button 
+              @click="stockOperation = 'out'" 
+              :class="['tab-btn', stockOperation === 'out' ? 'active' : '']">
+              出庫
+            </button>
+          </div>
+
+          <form @submit.prevent="submitStockOperation">
+            <div class="form-group">
+              <label>数量 *</label>
+              <input 
+                type="number" 
+                v-model.number="stockForm.quantity" 
+                min="1"
+                max="100000"
+                step="1" 
+                required
+                placeholder="1"
+              >
+            </div>
+            <div class="form-group">
+              <label>備考</label>
+              <textarea 
+                v-model.trim="stockForm.notes" 
+                rows="3"
+                maxlength="200"
+                placeholder="任意で備考を入力してください"
+              ></textarea>
+            </div>
+            <div class="modal-actions">
+              <button type="button" @click="closeStockModal" class="btn btn-secondary">キャンセル</button>
+              <button type="submit" :class="['btn', stockOperation === 'in' ? 'btn-success' : 'btn-warning']">
+                {{ stockOperation === 'in' ? '入庫' : '出庫' }}
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
