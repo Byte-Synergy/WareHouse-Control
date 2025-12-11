@@ -49,9 +49,12 @@ http://localhost:3000
 
 ## ドキュメント
 
-- **[ユーザーガイド](USER_GUIDE.md)** - 機能の使い方
-- **[APIドキュメント](API.md)** - API仕様
-- **[要件定義書](TODO.md)** - プロジェクト要件
+- **[QUICKSTART.md](QUICKSTART.md)** - 5分でスタート
+- **[USER_GUIDE.md](USER_GUIDE.md)** - 機能の使い方
+- **[LEARNING_GUIDE.md](LEARNING_GUIDE.md)** - このプロジェクトから学ぶ方法
+- **[API.md](API.md)** - API仕様
+- **[COMPLETION_REPORT.md](COMPLETION_REPORT.md)** - 完成報告
+- **[TODO.md](TODO.md)** - プロジェクト要件
 
 ## 技術スタック
 
