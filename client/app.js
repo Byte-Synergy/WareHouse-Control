@@ -32,10 +32,16 @@ createApp({
       },
       alertMessage: '',
       alertType: 'success',
-      isLoading: false
+      isLoading: false,
+      currentPage: 'dashboard',
+      stockHistory: [],
+      historyLoading: false
     };
   },
   computed: {
+    lowStockProducts() {
+      return this.products.filter(p => p.current_stock <= p.min_stock);
+    },
     filteredProducts() {
       if (this.showLowStockOnly) {
         return this.products.filter(p => p.current_stock <= p.min_stock);
@@ -46,10 +52,43 @@ createApp({
       return this.products.filter(p => p.current_stock <= p.min_stock).length;
     }
   },
+  watch: {
+    currentPage(page) {
+      if (page === 'history') this.loadStockHistory();
+    }
+  },
   mounted() {
     this.checkSession();
+    this.getCurrentPageFromHash();
+    window.addEventListener('hashchange', () => this.getCurrentPageFromHash());
   },
   methods: {
+    getCurrentPageFromHash() {
+      const hash = (window.location.hash || '#/').slice(1).replace(/^\//, '') || 'dashboard';
+      const routes = { '': 'dashboard', products: 'products', alerts: 'alerts', history: 'history' };
+      this.currentPage = routes[hash] || 'dashboard';
+    },
+    async loadStockHistory() {
+      try {
+        this.historyLoading = true;
+        const response = await fetch('/api/stock/history', { credentials: 'include' });
+        if (response.ok) {
+          this.stockHistory = await response.json();
+        } else {
+          this.showAlert('Failed to load transaction history', 'error');
+        }
+      } catch (err) {
+        this.showAlert('Failed to load transaction history', 'error');
+        console.error('Load stock history error:', err);
+      } finally {
+        this.historyLoading = false;
+      }
+    },
+    formatDate(str) {
+      if (!str) return '—';
+      const d = new Date(str.replace(' ', 'T'));
+      return isNaN(d.getTime()) ? str : d.toLocaleString('en-US', { dateStyle: 'short', timeStyle: 'short' });
+    },
     async checkSession() {
       try {
         const response = await fetch('/api/session', {
@@ -84,10 +123,10 @@ createApp({
           this.loginForm.password = '';
           this.loadProducts();
         } else {
-          this.loginError = data.error || 'ログインに失敗しました';
+          this.loginError = data.error || 'Login failed';
         }
       } catch (err) {
-        this.loginError = 'サーバーエラーが発生しました';
+        this.loginError = 'Server error. Please try again.';
         console.error('Login error:', err);
       }
     },
@@ -113,10 +152,10 @@ createApp({
         if (response.ok) {
           this.products = await response.json();
         } else {
-          this.showAlert('商品の読み込みに失敗しました', 'error');
+          this.showAlert('Failed to load products', 'error');
         }
       } catch (err) {
-        this.showAlert('商品の読み込みに失敗しました', 'error');
+        this.showAlert('Failed to load products', 'error');
         console.error('Load products error:', err);
       } finally {
         this.isLoading = false;
@@ -125,17 +164,17 @@ createApp({
     async saveProduct() {
       // Client-side validation
       if (!this.productForm.sku || !this.productForm.name) {
-        this.showAlert('SKUと商品名は必須です', 'error');
+        this.showAlert('SKU and product name are required', 'error');
         return;
       }
       
       if (this.productForm.sku.trim().length === 0 || this.productForm.name.trim().length === 0) {
-        this.showAlert('SKUと商品名は空白のみにできません', 'error');
+        this.showAlert('SKU and product name cannot be blank', 'error');
         return;
       }
       
       if (this.productForm.current_stock < 0 || this.productForm.min_stock < 0) {
-        this.showAlert('在庫数は0以上である必要があります', 'error');
+        this.showAlert('Stock values must be 0 or greater', 'error');
         return;
       }
       
@@ -156,16 +195,16 @@ createApp({
         
         if (response.ok) {
           this.showAlert(
-            this.showEditModal ? '商品を更新しました' : '商品を追加しました',
+            this.showEditModal ? 'Product updated' : 'Product added',
             'success'
           );
           this.closeModal();
           this.loadProducts();
         } else {
-          this.showAlert(data.error || '保存に失敗しました', 'error');
+          this.showAlert(data.error || 'Save failed', 'error');
         }
       } catch (err) {
-        this.showAlert('サーバーエラーが発生しました', 'error');
+        this.showAlert('Server error. Please try again.', 'error');
         console.error('Save product error:', err);
       }
     },
@@ -174,7 +213,7 @@ createApp({
       this.showEditModal = true;
     },
     async deleteProduct(id) {
-      if (!confirm('本当にこの商品を削除しますか？')) {
+      if (!confirm('Are you sure you want to delete this product?')) {
         return;
       }
       
@@ -185,14 +224,14 @@ createApp({
         });
         
         if (response.ok) {
-          this.showAlert('商品を削除しました', 'success');
+          this.showAlert('Product deleted', 'success');
           this.loadProducts();
         } else {
           const data = await response.json();
-          this.showAlert(data.error || '削除に失敗しました', 'error');
+          this.showAlert(data.error || 'Delete failed', 'error');
         }
       } catch (err) {
-        this.showAlert('サーバーエラーが発生しました', 'error');
+        this.showAlert('Server error. Please try again.', 'error');
         console.error('Delete product error:', err);
       }
     },
@@ -216,17 +255,17 @@ createApp({
     async submitStockOperation() {
       // Client-side validation
       if (!this.stockForm.quantity || this.stockForm.quantity <= 0) {
-        this.showAlert('数量は正の整数である必要があります', 'error');
+        this.showAlert('Quantity must be a positive integer', 'error');
         return;
       }
       
       if (this.stockForm.quantity > 100000) {
-        this.showAlert('数量は100,000以下である必要があります', 'error');
+        this.showAlert('Quantity must be 100,000 or less', 'error');
         return;
       }
       
       if (!Number.isInteger(this.stockForm.quantity)) {
-        this.showAlert('数量は整数である必要があります', 'error');
+        this.showAlert('Quantity must be a whole number', 'error');
         return;
       }
       
@@ -248,17 +287,18 @@ createApp({
         if (response.ok) {
           this.showAlert(
             this.stockOperation === 'in' 
-              ? `${this.stockForm.quantity}個入庫しました` 
-              : `${this.stockForm.quantity}個出庫しました`,
+              ? `${this.stockForm.quantity} added (stock in)` 
+              : `${this.stockForm.quantity} removed (stock out)`,
             'success'
           );
           this.closeStockModal();
           this.loadProducts();
+          if (this.currentPage === 'history') this.loadStockHistory();
         } else {
-          this.showAlert(data.error || '在庫操作に失敗しました', 'error');
+          this.showAlert(data.error || 'Stock operation failed', 'error');
         }
       } catch (err) {
-        this.showAlert('サーバーエラーが発生しました', 'error');
+        this.showAlert('Server error. Please try again.', 'error');
         console.error('Stock operation error:', err);
       }
     },
@@ -278,12 +318,12 @@ createApp({
           a.click();
           window.URL.revokeObjectURL(url);
           document.body.removeChild(a);
-          this.showAlert('CSVファイルをダウンロードしました', 'success');
+          this.showAlert('CSV downloaded', 'success');
         } else {
-          this.showAlert('エクスポートに失敗しました', 'error');
+          this.showAlert('Export failed', 'error');
         }
       } catch (err) {
-        this.showAlert('サーバーエラーが発生しました', 'error');
+        this.showAlert('Server error. Please try again.', 'error');
         console.error('Export error:', err);
       }
     },

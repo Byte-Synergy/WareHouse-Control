@@ -1,11 +1,14 @@
 MVP Software Requirements Specification (SRS)
+
 ## Inventory Management System for Small Businesses
 
 ### 1. Overview
-**Project Name**: StockMaster Lite  
+
+**Project Name**: WareHouse Control  
 **Description**: A simple web-based inventory management system for small retail/warehouse businesses  
 **Target Users**: Small business owners, shop managers (1-5 users)  
-**Tech Stack**: 
+**Tech Stack**:
+
 - **Backend**: Express.js (Node.js)
 - **Frontend**: Vue.js (client-side)
 - **Database**: SQLite (simplest file-based DB)
@@ -14,33 +17,39 @@ MVP Software Requirements Specification (SRS)
 ### 2. Core MVP Features
 
 #### 2.1 User Authentication
+
 - **Admin login/logout**
 - One default admin account (can be configured)
 - Session-based authentication
 - Simple password protection
 
 #### 2.2 Product Management
+
 - **Add new products**: Name, SKU, description, category, current stock, minimum stock level
 - **Edit existing products**
 - **Delete products** (with confirmation)
 - **View all products** in a simple table
 
 #### 2.3 Stock Transactions
+
 - **Stock In**: Add stock with quantity, date, reference note
 - **Stock Out**: Remove stock with quantity, date, reason
 - **Transaction history** for each product
 
 #### 2.4 Automatic Stock Tracking
+
 - Real-time stock level calculation
 - Stock updates automatically after each transaction
 - Current stock visible in product list
 
 #### 2.5 Stock Alerts
+
 - Visual indicator for low stock items
 - Filter to show only low-stock items
 - Alert based on minimum stock level per product
 
 #### 2.6 Data Export
+
 - **Export to CSV** button
 - Export current product list with stock levels
 - Simple CSV format compatible with Excel
@@ -48,6 +57,7 @@ MVP Software Requirements Specification (SRS)
 ### 3. Technical Architecture
 
 #### 3.1 File Structure
+
 ```
 inventory-mvp/
 ├── server/
@@ -63,6 +73,7 @@ inventory-mvp/
 ```
 
 #### 3.2 Simplified API Endpoints
+
 ```
 POST   /api/login
 POST   /api/logout
@@ -77,6 +88,7 @@ GET    /api/export
 ```
 
 #### 3.3 Database Schema (SQLite)
+
 ```sql
 -- Products table
 CREATE TABLE products (
@@ -112,6 +124,7 @@ CREATE TABLE users (
 ### 4. User Interface Requirements
 
 #### 4.1 Pages/Screens
+
 1. **Login Page** (Single form)
 2. **Dashboard** (After login)
    - Product list table
@@ -123,6 +136,7 @@ CREATE TABLE users (
 4. **Transaction History** (Optional for MVP - can be combined)
 
 #### 4.2 Key UI Components
+
 - Simple navigation bar
 - Responsive table for product listing
 - Modal forms for add/edit operations
@@ -132,17 +146,20 @@ CREATE TABLE users (
 ### 5. Non-Functional Requirements
 
 #### 5.1 Performance
+
 - Page load < 3 seconds
 - Support up to 500 products
 - Handle 5 concurrent users
 
 #### 5.2 Security
+
 - Password hashing (bcrypt)
 - Session management
 - SQL injection prevention
 - XSS protection
 
 #### 5.3 Usability
+
 - No training required for basic users
 - Japanese language interface
 - Simple, intuitive navigation
@@ -151,18 +168,21 @@ CREATE TABLE users (
 ### 6. Implementation Priority
 
 #### Phase 1 (Week 1-2): Core Foundation
+
 - Set up Express + Vue.js
 - Create login system
 - Implement basic product CRUD
 - Simple stock tracking
 
 #### Phase 2 (Week 3): Essential Features
+
 - Stock in/out transactions
 - Automatic stock calculation
 - Low stock alerts
 - Basic CSV export
 
 #### Phase 3 (Week 4): Polish
+
 - UI improvements
 - Error handling
 - Data validation
@@ -171,6 +191,7 @@ CREATE TABLE users (
 ### 7. Limitations (MVP Scope)
 
 #### NOT Included in MVP:
+
 1. Multiple user roles
 2. Advanced reporting
 3. Barcode scanning
@@ -185,6 +206,7 @@ CREATE TABLE users (
 ### 8. Success Criteria
 
 #### MVP Completion When:
+
 - [ ] Admin can log in
 - [ ] Products can be added/edited/deleted
 - [ ] Stock in/out transactions work
@@ -197,6 +219,7 @@ CREATE TABLE users (
 ### 9. Deployment Instructions
 
 #### Local Development:
+
 ```bash
 # 1. Install dependencies
 npm install express sqlite3 bcryptjs cors
@@ -208,6 +231,7 @@ node server.js
 ```
 
 #### Production Deployment:
+
 1. Use simple hosting (Heroku, Railway, or VPS)
 2. Add environment variables
 3. Regular database backups
