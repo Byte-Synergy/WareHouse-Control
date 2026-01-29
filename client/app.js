@@ -3,13 +3,18 @@ const { createApp } = Vue;
 createApp({
   data() {
     return {
+      // Landing & Auth
+      showLanding: true,
       isAuthenticated: false,
+      showPassword: false,
       username: '',
       loginForm: {
         username: '',
         password: ''
       },
       loginError: '',
+      
+      // Products
       products: [],
       showAddModal: false,
       showEditModal: false,
@@ -30,12 +35,15 @@ createApp({
         current_stock: 0,
         min_stock: 5
       },
+      
+      // UI State
       alertMessage: '',
       alertType: 'success',
       isLoading: false,
       currentPage: 'dashboard',
       stockHistory: [],
-      historyLoading: false
+      historyLoading: false,
+      mobileNavOpen: false
     };
   },
   computed: {
@@ -61,6 +69,20 @@ createApp({
     this.checkSession();
     this.getCurrentPageFromHash();
     window.addEventListener('hashchange', () => this.getCurrentPageFromHash());
+    
+    // Smooth scroll for landing page anchors
+    document.addEventListener('click', (e) => {
+      const anchor = e.target.closest('a[href^="#"]');
+      if (anchor && anchor.getAttribute('href').length > 1) {
+        const targetId = anchor.getAttribute('href');
+        if (targetId.startsWith('#/')) return; // Skip route links
+        const target = document.querySelector(targetId);
+        if (target) {
+          e.preventDefault();
+          target.scrollIntoView({ behavior: 'smooth' });
+        }
+      }
+    });
   },
   methods: {
     getCurrentPageFromHash() {
@@ -68,6 +90,51 @@ createApp({
       const routes = { '': 'dashboard', products: 'products', alerts: 'alerts', history: 'history' };
       this.currentPage = routes[hash] || 'dashboard';
     },
+    
+    // ========================================
+    // Dashboard Helper Methods
+    // ========================================
+    getTotalStock() {
+      return this.products.reduce((sum, p) => sum + (p.current_stock || 0), 0);
+    },
+    getUniqueCategories() {
+      const categories = new Set(this.products.map(p => p.category).filter(Boolean));
+      return categories.size;
+    },
+    
+    // ========================================
+    // Date Formatting
+    // ========================================
+    formatDate(str) {
+      if (!str) return '—';
+      const d = new Date(str.replace(' ', 'T'));
+      return isNaN(d.getTime()) ? str : d.toLocaleString('en-US', { dateStyle: 'short', timeStyle: 'short' });
+    },
+    formatDatePrimary(str) {
+      if (!str) return '—';
+      const d = new Date(str.replace(' ', 'T'));
+      if (isNaN(d.getTime())) return str;
+      
+      const today = new Date();
+      const yesterday = new Date(today);
+      yesterday.setDate(yesterday.getDate() - 1);
+      
+      if (d.toDateString() === today.toDateString()) {
+        return 'Today';
+      } else if (d.toDateString() === yesterday.toDateString()) {
+        return 'Yesterday';
+      }
+      return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+    },
+    formatDateTime(str) {
+      if (!str) return '';
+      const d = new Date(str.replace(' ', 'T'));
+      return isNaN(d.getTime()) ? '' : d.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
+    },
+    
+    // ========================================
+    // Stock History
+    // ========================================
     async loadStockHistory() {
       try {
         this.historyLoading = true;
@@ -84,11 +151,10 @@ createApp({
         this.historyLoading = false;
       }
     },
-    formatDate(str) {
-      if (!str) return '—';
-      const d = new Date(str.replace(' ', 'T'));
-      return isNaN(d.getTime()) ? str : d.toLocaleString('en-US', { dateStyle: 'short', timeStyle: 'short' });
-    },
+    
+    // ========================================
+    // Authentication
+    // ========================================
     async checkSession() {
       try {
         const response = await fetch('/api/session', {
@@ -98,6 +164,7 @@ createApp({
         if (data.authenticated) {
           this.isAuthenticated = true;
           this.username = data.username;
+          this.showLanding = false;
           this.loadProducts();
         }
       } catch (err) {
@@ -139,10 +206,15 @@ createApp({
         this.isAuthenticated = false;
         this.username = '';
         this.products = [];
+        this.showLanding = true;
       } catch (err) {
         console.error('Logout error:', err);
       }
     },
+    
+    // ========================================
+    // Products CRUD
+    // ========================================
     async loadProducts() {
       try {
         this.isLoading = true;
@@ -235,6 +307,10 @@ createApp({
         console.error('Delete product error:', err);
       }
     },
+    
+    // ========================================
+    // Stock Operations
+    // ========================================
     showStockModal(product) {
       this.selectedProduct = { ...product };
       this.stockOperation = 'in';
@@ -302,6 +378,10 @@ createApp({
         console.error('Stock operation error:', err);
       }
     },
+    
+    // ========================================
+    // Export
+    // ========================================
     async exportCSV() {
       try {
         const response = await fetch('/api/export', {
@@ -327,6 +407,10 @@ createApp({
         console.error('Export error:', err);
       }
     },
+    
+    // ========================================
+    // Modals & Alerts
+    // ========================================
     closeModal() {
       this.showAddModal = false;
       this.showEditModal = false;

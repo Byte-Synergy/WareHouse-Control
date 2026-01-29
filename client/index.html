@@ -3,154 +3,898 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>WareHouse Control — Inventory Management</title>
+    <title>WareHouse Control — Smart Inventory Management</title>
+    <meta name="description" content="Professional inventory management system for businesses. Track products, manage stock levels, and get real-time alerts." />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
       rel="stylesheet"
     />
-    <link rel="stylesheet" href="style.css" />
+    <link rel="stylesheet" href="./style.css" />
     <script src="https://cdn.jsdelivr.net/npm/vue@3/dist/vue.global.js"></script>
   </head>
   <body>
     <div id="app">
-      <!-- Login Screen -->
-      <div v-if="!isAuthenticated" class="login-container">
-        <div class="login-box animate-in">
-          <h1>WareHouse Control</h1>
-          <p class="login-subtitle">Sign in to manage your inventory</p>
-          <form @submit.prevent="login" class="login-form">
-            <div class="form-group">
-              <label for="username">Username</label>
-              <input
-                id="username"
-                type="text"
-                v-model="loginForm.username"
-                required
-                autocomplete="username"
-                placeholder="Enter your username"
-              />
+      <!-- ============================================
+           LANDING PAGE (Marketing / Introduction)
+           ============================================ -->
+      <div v-if="showLanding && !isAuthenticated" class="landing-page">
+        <!-- Decorative Background Elements -->
+        <div class="landing-bg-shapes">
+          <div class="shape shape-1"></div>
+          <div class="shape shape-2"></div>
+          <div class="shape shape-3"></div>
+          <div class="grid-pattern"></div>
+        </div>
+
+        <!-- Navigation Bar -->
+        <nav class="landing-nav">
+          <div class="landing-nav-inner">
+            <div class="landing-logo">
+              <div class="logo-icon">
+                <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <rect width="32" height="32" rx="8" fill="url(#logo-gradient)"/>
+                  <path d="M8 12L16 8L24 12V20L16 24L8 20V12Z" stroke="white" stroke-width="2" fill="none"/>
+                  <path d="M16 14V20M12 16H20" stroke="white" stroke-width="2" stroke-linecap="round"/>
+                  <defs>
+                    <linearGradient id="logo-gradient" x1="0" y1="0" x2="32" y2="32">
+                      <stop offset="0%" stop-color="#6366f1"/>
+                      <stop offset="100%" stop-color="#4f46e5"/>
+                    </linearGradient>
+                  </defs>
+                </svg>
+              </div>
+              <span class="logo-text">WareHouse Control</span>
             </div>
-            <div class="form-group">
-              <label for="password">Password</label>
-              <input
-                id="password"
-                type="password"
-                v-model="loginForm.password"
-                required
-                autocomplete="current-password"
-                placeholder="Enter your password"
-              />
+            <div class="landing-nav-actions">
+              <button @click="showLanding = false" class="btn btn-ghost">Sign In</button>
+              <button @click="showLanding = false" class="btn btn-primary btn-glow">Get Started</button>
             </div>
-            <div v-if="loginError" class="error-message">{{ loginError }}</div>
-            <button type="submit" class="btn btn-primary btn-block">
-              Sign in
-            </button>
-          </form>
+          </div>
+        </nav>
+
+        <!-- Hero Section -->
+        <section class="hero-section">
+          <div class="hero-content">
+            <div class="hero-badge animate-float">
+              <span class="badge-dot"></span>
+              Smart Inventory Management
+            </div>
+            <h1 class="hero-title">
+              Control Your<br/>
+              <span class="gradient-text">Inventory</span> with Ease
+            </h1>
+            <p class="hero-subtitle">
+              A powerful, intuitive inventory management system designed for modern businesses. 
+              Track products, monitor stock levels, and never miss a low-stock alert again.
+            </p>
+            <div class="hero-actions">
+              <button @click="showLanding = false" class="btn btn-primary btn-lg btn-glow">
+                <span>Start Managing</span>
+                <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                  <path d="M4 10H16M16 10L11 5M16 10L11 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </button>
+              <a href="#features" class="btn btn-outline btn-lg">
+                <span>Explore Features</span>
+              </a>
+            </div>
+            <div class="hero-stats">
+              <div class="stat-item">
+                <div class="stat-value">99.9%</div>
+                <div class="stat-label">Uptime</div>
+              </div>
+              <div class="stat-divider"></div>
+              <div class="stat-item">
+                <div class="stat-value">Real-time</div>
+                <div class="stat-label">Stock Updates</div>
+              </div>
+              <div class="stat-divider"></div>
+              <div class="stat-item">
+                <div class="stat-value">Secure</div>
+                <div class="stat-label">Authentication</div>
+              </div>
+            </div>
+          </div>
+          <div class="hero-visual">
+            <div class="dashboard-preview">
+              <div class="preview-header">
+                <div class="preview-dots">
+                  <span></span><span></span><span></span>
+                </div>
+                <div class="preview-title">Dashboard</div>
+              </div>
+              <div class="preview-content">
+                <div class="preview-card">
+                  <div class="preview-card-icon">📦</div>
+                  <div class="preview-card-info">
+                    <span class="preview-card-label">Total Products</span>
+                    <span class="preview-card-value">1,247</span>
+                  </div>
+                </div>
+                <div class="preview-card preview-card-warning">
+                  <div class="preview-card-icon">⚠️</div>
+                  <div class="preview-card-info">
+                    <span class="preview-card-label">Low Stock</span>
+                    <span class="preview-card-value">23</span>
+                  </div>
+                </div>
+                <div class="preview-card preview-card-success">
+                  <div class="preview-card-icon">✓</div>
+                  <div class="preview-card-info">
+                    <span class="preview-card-label">In Stock</span>
+                    <span class="preview-card-value">1,224</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="floating-element fe-1">
+              <svg width="40" height="40" viewBox="0 0 40 40" fill="none">
+                <rect width="40" height="40" rx="10" fill="#10b981" fill-opacity="0.15"/>
+                <path d="M12 20L17 25L28 14" stroke="#10b981" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </div>
+            <div class="floating-element fe-2">
+              <svg width="48" height="48" viewBox="0 0 48 48" fill="none">
+                <rect width="48" height="48" rx="12" fill="#f59e0b" fill-opacity="0.15"/>
+                <path d="M24 16V24L28 28" stroke="#f59e0b" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+                <circle cx="24" cy="24" r="10" stroke="#f59e0b" stroke-width="3" fill="none"/>
+              </svg>
+            </div>
+          </div>
+        </section>
+
+        <!-- Features Section -->
+        <section id="features" class="features-section">
+          <div class="section-container">
+            <div class="section-header-landing">
+              <span class="section-tag">Features</span>
+              <h2 class="section-title-landing">Everything you need to<br/><span class="gradient-text">manage inventory</span></h2>
+              <p class="section-desc">Powerful tools designed to streamline your inventory operations and boost productivity.</p>
+            </div>
+            <div class="features-grid">
+              <div class="feature-card">
+                <div class="feature-icon feature-icon-blue">
+                  <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
+                    <path d="M4 8L14 3L24 8V20L14 25L4 20V8Z" stroke="currentColor" stroke-width="2"/>
+                    <path d="M4 8L14 13M14 13V25M14 13L24 8" stroke="currentColor" stroke-width="2"/>
+                  </svg>
+                </div>
+                <h3 class="feature-title">Product Tracking</h3>
+                <p class="feature-desc">Add, edit, and organize your entire product catalog with SKU codes, categories, and detailed descriptions.</p>
+              </div>
+              <div class="feature-card">
+                <div class="feature-icon feature-icon-amber">
+                  <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
+                    <path d="M14 4V6M14 22V24M4 14H6M22 14H24M7 7L8.5 8.5M19.5 19.5L21 21M7 21L8.5 19.5M19.5 8.5L21 7" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                    <circle cx="14" cy="14" r="5" stroke="currentColor" stroke-width="2"/>
+                  </svg>
+                </div>
+                <h3 class="feature-title">Low Stock Alerts</h3>
+                <p class="feature-desc">Set minimum thresholds and get instant visibility when products fall below safe stock levels.</p>
+              </div>
+              <div class="feature-card">
+                <div class="feature-icon feature-icon-green">
+                  <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
+                    <path d="M8 14L12 18L20 10" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <rect x="4" y="4" width="20" height="20" rx="3" stroke="currentColor" stroke-width="2"/>
+                  </svg>
+                </div>
+                <h3 class="feature-title">Stock In/Out</h3>
+                <p class="feature-desc">Record incoming and outgoing stock movements with notes to maintain accurate inventory counts.</p>
+              </div>
+              <div class="feature-card">
+                <div class="feature-icon feature-icon-purple">
+                  <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
+                    <path d="M4 8H24M4 14H24M4 20H16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                  </svg>
+                </div>
+                <h3 class="feature-title">Transaction History</h3>
+                <p class="feature-desc">Complete audit trail of all stock movements with timestamps, quantities, and notes.</p>
+              </div>
+              <div class="feature-card">
+                <div class="feature-icon feature-icon-rose">
+                  <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
+                    <path d="M6 22V18M11 22V14M16 22V10M21 22V6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                  </svg>
+                </div>
+                <h3 class="feature-title">Export Reports</h3>
+                <p class="feature-desc">Download your inventory data as CSV files for analysis, reporting, or backup purposes.</p>
+              </div>
+              <div class="feature-card">
+                <div class="feature-icon feature-icon-cyan">
+                  <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
+                    <rect x="4" y="8" width="20" height="14" rx="2" stroke="currentColor" stroke-width="2"/>
+                    <path d="M8 8V6C8 4.89543 8.89543 4 10 4H18C19.1046 4 20 4.89543 20 6V8" stroke="currentColor" stroke-width="2"/>
+                    <circle cx="14" cy="15" r="3" stroke="currentColor" stroke-width="2"/>
+                  </svg>
+                </div>
+                <h3 class="feature-title">Secure Access</h3>
+                <p class="feature-desc">Protected login system ensures only authorized users can access and modify inventory data.</p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- How It Works Section -->
+        <section class="how-it-works-section">
+          <div class="section-container">
+            <div class="section-header-landing">
+              <span class="section-tag">How It Works</span>
+              <h2 class="section-title-landing">Get started in<br/><span class="gradient-text">three simple steps</span></h2>
+            </div>
+            <div class="steps-grid">
+              <div class="step-card">
+                <div class="step-number">01</div>
+                <div class="step-content">
+                  <h3 class="step-title">Sign In</h3>
+                  <p class="step-desc">Log in with your secure credentials to access your personalized inventory dashboard.</p>
+                </div>
+                <div class="step-icon">
+                  <svg width="48" height="48" viewBox="0 0 48 48" fill="none">
+                    <circle cx="24" cy="18" r="8" stroke="currentColor" stroke-width="2"/>
+                    <path d="M8 42C8 33.1634 15.1634 26 24 26C32.8366 26 40 33.1634 40 42" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                  </svg>
+                </div>
+              </div>
+              <div class="step-connector">
+                <svg width="80" height="24" viewBox="0 0 80 24" fill="none">
+                  <path d="M0 12H70M70 12L58 4M70 12L58 20" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="4 4"/>
+                </svg>
+              </div>
+              <div class="step-card">
+                <div class="step-number">02</div>
+                <div class="step-content">
+                  <h3 class="step-title">Manage Products</h3>
+                  <p class="step-desc">Add your products, set stock levels, categorize items, and define minimum thresholds.</p>
+                </div>
+                <div class="step-icon">
+                  <svg width="48" height="48" viewBox="0 0 48 48" fill="none">
+                    <rect x="8" y="8" width="32" height="32" rx="4" stroke="currentColor" stroke-width="2"/>
+                    <path d="M18 24H30M24 18V30" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                  </svg>
+                </div>
+              </div>
+              <div class="step-connector">
+                <svg width="80" height="24" viewBox="0 0 80 24" fill="none">
+                  <path d="M0 12H70M70 12L58 4M70 12L58 20" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="4 4"/>
+                </svg>
+              </div>
+              <div class="step-card">
+                <div class="step-number">03</div>
+                <div class="step-content">
+                  <h3 class="step-title">Track & Control</h3>
+                  <p class="step-desc">Monitor stock levels, receive low-stock alerts, and record all inventory movements.</p>
+                </div>
+                <div class="step-icon">
+                  <svg width="48" height="48" viewBox="0 0 48 48" fill="none">
+                    <path d="M8 36L18 26L26 34L40 18" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M32 18H40V26" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Benefits Section -->
+        <section class="benefits-section">
+          <div class="section-container">
+            <div class="benefits-content">
+              <div class="benefits-text">
+                <span class="section-tag">Why Choose Us</span>
+                <h2 class="section-title-landing">Built for <span class="gradient-text">small businesses</span> and growing teams</h2>
+                <p class="section-desc">WareHouse Control is designed with simplicity and power in mind. No complex setup, no steep learning curve — just straightforward inventory management.</p>
+                <ul class="benefits-list">
+                  <li>
+                    <span class="benefit-check">✓</span>
+                    <span>Simple, intuitive interface anyone can use</span>
+                  </li>
+                  <li>
+                    <span class="benefit-check">✓</span>
+                    <span>Real-time stock level updates</span>
+                  </li>
+                  <li>
+                    <span class="benefit-check">✓</span>
+                    <span>Complete transaction history and audit trail</span>
+                  </li>
+                  <li>
+                    <span class="benefit-check">✓</span>
+                    <span>Export data anytime for reports</span>
+                  </li>
+                  <li>
+                    <span class="benefit-check">✓</span>
+                    <span>Works on desktop, tablet, and mobile</span>
+                  </li>
+                </ul>
+                <button @click="showLanding = false" class="btn btn-primary btn-lg btn-glow">
+                  Get Started Free
+                </button>
+              </div>
+              <div class="benefits-visual">
+                <div class="benefit-card bc-1">
+                  <div class="bc-icon">📊</div>
+                  <div class="bc-content">
+                    <div class="bc-title">Real-time Analytics</div>
+                    <div class="bc-desc">See your inventory health at a glance</div>
+                  </div>
+                </div>
+                <div class="benefit-card bc-2">
+                  <div class="bc-icon">🔔</div>
+                  <div class="bc-content">
+                    <div class="bc-title">Smart Alerts</div>
+                    <div class="bc-desc">Never run out of critical items</div>
+                  </div>
+                </div>
+                <div class="benefit-card bc-3">
+                  <div class="bc-icon">📱</div>
+                  <div class="bc-content">
+                    <div class="bc-title">Fully Responsive</div>
+                    <div class="bc-desc">Manage inventory from any device</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- CTA Section -->
+        <section class="cta-section">
+          <div class="section-container">
+            <div class="cta-card">
+              <div class="cta-bg-pattern"></div>
+              <h2 class="cta-title">Ready to take control of your inventory?</h2>
+              <p class="cta-desc">Join businesses that trust WareHouse Control for their inventory management needs.</p>
+              <button @click="showLanding = false" class="btn btn-white btn-lg">
+                Get Started Now
+                <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                  <path d="M4 10H16M16 10L11 5M16 10L11 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </button>
+            </div>
+          </div>
+        </section>
+
+        <!-- Footer -->
+        <footer class="landing-footer">
+          <div class="section-container">
+            <div class="footer-content">
+              <div class="footer-brand">
+                <div class="landing-logo">
+                  <div class="logo-icon">
+                    <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <rect width="32" height="32" rx="8" fill="url(#logo-gradient-2)"/>
+                      <path d="M8 12L16 8L24 12V20L16 24L8 20V12Z" stroke="white" stroke-width="2" fill="none"/>
+                      <path d="M16 14V20M12 16H20" stroke="white" stroke-width="2" stroke-linecap="round"/>
+                      <defs>
+                        <linearGradient id="logo-gradient-2" x1="0" y1="0" x2="32" y2="32">
+                          <stop offset="0%" stop-color="#6366f1"/>
+                          <stop offset="100%" stop-color="#4f46e5"/>
+                        </linearGradient>
+                      </defs>
+                    </svg>
+                  </div>
+                  <span class="logo-text">WareHouse Control</span>
+                </div>
+                <p class="footer-tagline">Smart inventory management for modern businesses.</p>
+              </div>
+              <div class="footer-links">
+                <div class="footer-col">
+                  <h4>Product</h4>
+                  <a href="#features">Features</a>
+                  <a href="#" @click.prevent="showLanding = false">Dashboard</a>
+                  <a href="#" @click.prevent="showLanding = false">Get Started</a>
+                </div>
+                <div class="footer-col">
+                  <h4>Resources</h4>
+                  <a href="#">Documentation</a>
+                  <a href="#">Support</a>
+                  <a href="#">API</a>
+                </div>
+              </div>
+            </div>
+            <div class="footer-bottom">
+              <p>© 2024 WareHouse Control. Built for university project demonstration.</p>
+              <p class="footer-version">Version 1.0.0</p>
+            </div>
+          </div>
+        </footer>
+      </div>
+
+      <!-- ============================================
+           LOGIN SCREEN (Redesigned)
+           ============================================ -->
+      <div v-if="!showLanding && !isAuthenticated" class="login-container">
+        <!-- Decorative Background -->
+        <div class="login-bg-shapes">
+          <div class="login-shape login-shape-1"></div>
+          <div class="login-shape login-shape-2"></div>
+          <div class="login-shape login-shape-3"></div>
+        </div>
+
+        <div class="login-wrapper">
+          <!-- Back to Landing Link -->
+          <button @click="showLanding = true" class="back-to-landing">
+            <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+              <path d="M16 10H4M4 10L9 5M4 10L9 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            <span>Back to home</span>
+          </button>
+
+          <div class="login-box animate-in">
+            <!-- Logo -->
+            <div class="login-logo">
+              <div class="logo-icon logo-icon-lg">
+                <svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <rect width="48" height="48" rx="12" fill="url(#login-logo-gradient)"/>
+                  <path d="M12 18L24 12L36 18V30L24 36L12 30V18Z" stroke="white" stroke-width="2.5" fill="none"/>
+                  <path d="M24 21V30M18 24H30" stroke="white" stroke-width="2.5" stroke-linecap="round"/>
+                  <defs>
+                    <linearGradient id="login-logo-gradient" x1="0" y1="0" x2="48" y2="48">
+                      <stop offset="0%" stop-color="#6366f1"/>
+                      <stop offset="100%" stop-color="#4f46e5"/>
+                    </linearGradient>
+                  </defs>
+                </svg>
+              </div>
+            </div>
+
+            <h1>Welcome back</h1>
+            <p class="login-subtitle">Sign in to your inventory dashboard</p>
+
+            <form @submit.prevent="login" class="login-form">
+              <div class="form-group">
+                <label for="username">
+                  <svg width="16" height="16" viewBox="0 0 16 16" fill="none" class="input-icon">
+                    <circle cx="8" cy="5" r="3" stroke="currentColor" stroke-width="1.5"/>
+                    <path d="M2 15C2 11.6863 4.68629 9 8 9C11.3137 9 14 11.6863 14 15" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                  </svg>
+                  Username
+                </label>
+                <input
+                  id="username"
+                  type="text"
+                  v-model="loginForm.username"
+                  required
+                  autocomplete="username"
+                  placeholder="Enter your username"
+                />
+              </div>
+              <div class="form-group">
+                <label for="password">
+                  <svg width="16" height="16" viewBox="0 0 16 16" fill="none" class="input-icon">
+                    <rect x="3" y="7" width="10" height="8" rx="2" stroke="currentColor" stroke-width="1.5"/>
+                    <path d="M5 7V5C5 3.34315 6.34315 2 8 2C9.65685 2 11 3.34315 11 5V7" stroke="currentColor" stroke-width="1.5"/>
+                    <circle cx="8" cy="11" r="1" fill="currentColor"/>
+                  </svg>
+                  Password
+                </label>
+                <div class="password-input-wrapper">
+                  <input
+                    id="password"
+                    :type="showPassword ? 'text' : 'password'"
+                    v-model="loginForm.password"
+                    required
+                    autocomplete="current-password"
+                    placeholder="Enter your password"
+                  />
+                  <button type="button" @click="showPassword = !showPassword" class="password-toggle" aria-label="Toggle password visibility">
+                    <svg v-if="!showPassword" width="20" height="20" viewBox="0 0 20 20" fill="none">
+                      <path d="M2 10C2 10 5 4 10 4C15 4 18 10 18 10C18 10 15 16 10 16C5 16 2 10 2 10Z" stroke="currentColor" stroke-width="1.5"/>
+                      <circle cx="10" cy="10" r="3" stroke="currentColor" stroke-width="1.5"/>
+                    </svg>
+                    <svg v-else width="20" height="20" viewBox="0 0 20 20" fill="none">
+                      <path d="M3 3L17 17M8.5 8.5C7.67 9.33 7.67 10.67 8.5 11.5C9.33 12.33 10.67 12.33 11.5 11.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                      <path d="M6.5 6.5C4.5 7.5 2 10 2 10C2 10 5 16 10 16C11.5 16 13 15.5 14 14.5M17.5 12.5C18 11.5 18 10 18 10C18 10 15 4 10 4C9.5 4 9 4.1 8.5 4.2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                    </svg>
+                  </button>
+                </div>
+              </div>
+
+              <div v-if="loginError" class="error-message">
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                  <circle cx="8" cy="8" r="7" stroke="currentColor" stroke-width="1.5"/>
+                  <path d="M8 4.5V8.5M8 11V11.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                </svg>
+                {{ loginError }}
+              </div>
+
+              <button type="submit" class="btn btn-primary btn-block btn-glow">
+                <span>Sign in</span>
+                <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                  <path d="M4 10H16M16 10L11 5M16 10L11 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </button>
+            </form>
+
+            <!-- Demo Credentials Hint -->
+            <div class="demo-credentials">
+              <div class="demo-label">Demo credentials</div>
+              <div class="demo-info">
+                <code>admin</code> / <code>admin123</code>
+              </div>
+            </div>
+          </div>
+
+          <!-- Decorative Text -->
+          <p class="login-footer-text">Secure inventory management for your business</p>
         </div>
       </div>
 
-      <!-- Main Application -->
-      <div v-else class="app-shell">
+      <!-- ============================================
+           MAIN APPLICATION (After Login)
+           ============================================ -->
+      <div v-else-if="isAuthenticated" class="app-shell">
+        <!-- Enhanced Navigation -->
         <nav class="navbar">
-          <div class="nav-brand">WareHouse Control</div>
+          <div class="nav-brand">
+            <div class="nav-logo-icon">
+              <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
+                <rect width="28" height="28" rx="6" fill="url(#nav-logo-gradient)"/>
+                <path d="M7 10.5L14 7L21 10.5V17.5L14 21L7 17.5V10.5Z" stroke="white" stroke-width="1.5" fill="none"/>
+                <path d="M14 12V17M11 14H17" stroke="white" stroke-width="1.5" stroke-linecap="round"/>
+                <defs>
+                  <linearGradient id="nav-logo-gradient" x1="0" y1="0" x2="28" y2="28">
+                    <stop offset="0%" stop-color="#6366f1"/>
+                    <stop offset="100%" stop-color="#4f46e5"/>
+                  </linearGradient>
+                </defs>
+              </svg>
+            </div>
+            <span>WareHouse Control</span>
+          </div>
           <div class="nav-main">
             <a
               href="#/"
               :class="['nav-link', currentPage === 'dashboard' ? 'active' : '']"
-              >Dashboard</a
             >
+              <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+                <rect x="2" y="2" width="5" height="5" rx="1" stroke="currentColor" stroke-width="1.5"/>
+                <rect x="11" y="2" width="5" height="5" rx="1" stroke="currentColor" stroke-width="1.5"/>
+                <rect x="2" y="11" width="5" height="5" rx="1" stroke="currentColor" stroke-width="1.5"/>
+                <rect x="11" y="11" width="5" height="5" rx="1" stroke="currentColor" stroke-width="1.5"/>
+              </svg>
+              <span>Dashboard</span>
+            </a>
             <a
               href="#/products"
               :class="['nav-link', currentPage === 'products' ? 'active' : '']"
-              >Products</a
             >
+              <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+                <path d="M3 6L9 3L15 6V12L9 15L3 12V6Z" stroke="currentColor" stroke-width="1.5"/>
+                <path d="M3 6L9 9M9 9V15M9 9L15 6" stroke="currentColor" stroke-width="1.5"/>
+              </svg>
+              <span>Products</span>
+            </a>
             <a
               href="#/alerts"
               :class="['nav-link', currentPage === 'alerts' ? 'active' : '']"
-              >Low Stock</a
             >
+              <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+                <path d="M9 2L2 15H16L9 2Z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+                <path d="M9 7V10M9 12.5V13" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+              </svg>
+              <span>Low Stock</span>
+              <span v-if="lowStockCount > 0" class="nav-badge">{{ lowStockCount }}</span>
+            </a>
             <a
               href="#/history"
               :class="['nav-link', currentPage === 'history' ? 'active' : '']"
-              >History</a
             >
+              <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+                <circle cx="9" cy="9" r="7" stroke="currentColor" stroke-width="1.5"/>
+                <path d="M9 5V9L12 11" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+              </svg>
+              <span>History</span>
+            </a>
           </div>
           <div class="nav-items">
-            <span class="nav-user">{{ username }}</span>
-            <button @click="logout" class="btn btn-secondary btn-sm">
-              Log out
+            <div class="nav-user-wrapper">
+              <div class="nav-user-avatar">
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                  <circle cx="8" cy="5" r="3" stroke="currentColor" stroke-width="1.5"/>
+                  <path d="M3 15C3 12.2386 5.23858 10 8 10C10.7614 10 13 12.2386 13 15" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                </svg>
+              </div>
+              <div class="nav-user-info">
+                <span class="nav-user-name">{{ username }}</span>
+                <span class="nav-user-role">Administrator</span>
+              </div>
+            </div>
+            <button @click="logout" class="btn btn-logout">
+              <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+                <path d="M6 15H4C3.44772 15 3 14.5523 3 14V4C3 3.44772 3.44772 3 4 3H6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                <path d="M11 12L14 9M14 9L11 6M14 9H7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+              <span>Log out</span>
             </button>
           </div>
         </nav>
 
+        <!-- Mobile Navigation Toggle (Hidden by default, shown on mobile) -->
+        <button class="mobile-nav-toggle" @click="mobileNavOpen = !mobileNavOpen" v-if="false">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+            <path d="M4 6H20M4 12H20M4 18H20" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          </svg>
+        </button>
+
         <main class="main-content">
           <div class="container">
-            <!-- Dashboard Page -->
+            <!-- ============================================
+                 DASHBOARD PAGE (Enhanced)
+                 ============================================ -->
             <section
               v-if="currentPage === 'dashboard'"
               class="page-section animate-fade-in"
             >
               <header class="section-header">
-                <h1 class="page-title">Dashboard</h1>
-                <p class="page-subtitle">
-                  Overview of your inventory at a glance
-                </p>
+                <div class="page-header-content">
+                  <h1 class="page-title">Dashboard</h1>
+                  <p class="page-subtitle">
+                    Welcome back, <strong>{{ username }}</strong>. Here's your inventory overview.
+                  </p>
+                </div>
+                <div class="page-header-actions">
+                  <button @click="loadProducts" class="btn btn-ghost btn-icon" title="Refresh data">
+                    <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+                      <path d="M15 9C15 12.3137 12.3137 15 9 15C5.68629 15 3 12.3137 3 9C3 5.68629 5.68629 3 9 3C11.5 3 13.5 4.5 14.5 6.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                      <path d="M14.5 3V6.5H11" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                  </button>
+                </div>
               </header>
 
+              <!-- Summary Cards -->
               <div class="dashboard-cards">
-                <div class="card card-animate" style="--delay: 0">
-                  <div class="card-icon" aria-hidden="true">📦</div>
+                <div class="card card-stat card-animate" style="--delay: 0">
+                  <div class="card-stat-header">
+                    <div class="card-icon-wrapper card-icon-blue">
+                      <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                        <path d="M4 8L12 4L20 8V16L12 20L4 16V8Z" stroke="currentColor" stroke-width="2"/>
+                        <path d="M4 8L12 12M12 12V20M12 12L20 8" stroke="currentColor" stroke-width="2"/>
+                      </svg>
+                    </div>
+                    <div class="card-trend card-trend-neutral">
+                      <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+                        <path d="M2 7H12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                      </svg>
+                    </div>
+                  </div>
                   <div class="card-title">Total Products</div>
                   <div class="card-value">{{ products.length }}</div>
+                  <div class="card-footer">Items in catalog</div>
                 </div>
+
                 <div
-                  class="card card-warning card-animate"
-                  v-if="lowStockCount > 0"
+                  class="card card-stat card-animate"
+                  :class="{'card-warning': lowStockCount > 0}"
                   style="--delay: 0.05s"
                 >
-                  <div class="card-icon" aria-hidden="true">⚠️</div>
+                  <div class="card-stat-header">
+                    <div class="card-icon-wrapper" :class="lowStockCount > 0 ? 'card-icon-amber' : 'card-icon-green'">
+                      <svg v-if="lowStockCount > 0" width="24" height="24" viewBox="0 0 24 24" fill="none">
+                        <path d="M12 4L3 19H21L12 4Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
+                        <path d="M12 10V14M12 17V17.5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                      </svg>
+                      <svg v-else width="24" height="24" viewBox="0 0 24 24" fill="none">
+                        <circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="2"/>
+                        <path d="M8 12L11 15L16 9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                      </svg>
+                    </div>
+                    <div class="card-trend" :class="lowStockCount > 0 ? 'card-trend-warning' : 'card-trend-success'">
+                      <span v-if="lowStockCount > 0">Needs attention</span>
+                      <span v-else>All good</span>
+                    </div>
+                  </div>
                   <div class="card-title">Low Stock</div>
                   <div class="card-value">{{ lowStockCount }}</div>
+                  <div class="card-footer">{{ lowStockCount > 0 ? 'Below minimum' : 'No alerts' }}</div>
                 </div>
-                <div class="card card-animate" v-else style="--delay: 0.05s">
-                  <div class="card-icon" aria-hidden="true">✓</div>
-                  <div class="card-title">Low Stock</div>
-                  <div class="card-value">0</div>
-                </div>
+
                 <div
-                  class="card card-success card-animate"
+                  class="card card-stat card-success card-animate"
                   style="--delay: 0.1s"
                 >
-                  <div class="card-icon" aria-hidden="true">✓</div>
+                  <div class="card-stat-header">
+                    <div class="card-icon-wrapper card-icon-green">
+                      <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                        <circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="2"/>
+                        <path d="M8 12L11 15L16 9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                      </svg>
+                    </div>
+                    <div class="card-trend card-trend-success">
+                      <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+                        <path d="M2 10L7 5L12 10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                      </svg>
+                      <span>Healthy</span>
+                    </div>
+                  </div>
                   <div class="card-title">In Stock</div>
                   <div class="card-value">
                     {{ products.length - lowStockCount }}
                   </div>
+                  <div class="card-footer">Above minimum</div>
                 </div>
               </div>
 
-              <div class="section-block info-block">
-                <p>
-                  Add or edit products in <strong>Products</strong>, review
-                  items below minimum in <strong>Low Stock</strong>, and see all
-                  movements in <strong>History</strong>.
-                </p>
-              </div>
+              <!-- Quick Actions Panel -->
+              <div class="dashboard-grid">
+                <div class="dashboard-col-main">
+                  <!-- Quick Actions -->
+                  <div class="section-block quick-actions-block">
+                    <h3 class="block-title">
+                      <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                        <path d="M10 2L2 7L10 12L18 7L10 2Z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+                        <path d="M2 12L10 17L18 12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                      </svg>
+                      Quick Actions
+                    </h3>
+                    <div class="quick-actions-grid">
+                      <a href="#/products" class="quick-action-card" @click="showAddModal = true">
+                        <div class="qa-icon qa-icon-blue">
+                          <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                            <rect x="4" y="4" width="16" height="16" rx="2" stroke="currentColor" stroke-width="2"/>
+                            <path d="M12 8V16M8 12H16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                          </svg>
+                        </div>
+                        <span class="qa-label">Add Product</span>
+                      </a>
+                      <a href="#/alerts" class="quick-action-card">
+                        <div class="qa-icon qa-icon-amber">
+                          <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                            <path d="M12 4L3 19H21L12 4Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
+                            <path d="M12 10V14M12 17V17.5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                          </svg>
+                        </div>
+                        <span class="qa-label">View Low Stock</span>
+                        <span v-if="lowStockCount > 0" class="qa-badge">{{ lowStockCount }}</span>
+                      </a>
+                      <a href="#" class="quick-action-card" @click.prevent="exportCSV">
+                        <div class="qa-icon qa-icon-green">
+                          <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                            <path d="M12 4V16M12 16L8 12M12 16L16 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M4 18H20" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                          </svg>
+                        </div>
+                        <span class="qa-label">Export CSV</span>
+                      </a>
+                      <a href="#/history" class="quick-action-card">
+                        <div class="qa-icon qa-icon-purple">
+                          <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                            <circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="2"/>
+                            <path d="M12 7V12L15 14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                          </svg>
+                        </div>
+                        <span class="qa-label">View History</span>
+                      </a>
+                    </div>
+                  </div>
 
-              <div class="section-actions">
-                <a href="#/products" class="btn btn-primary">Go to Products</a>
-                <a
-                  href="#/alerts"
-                  class="btn btn-warning"
-                  v-if="lowStockCount > 0"
-                  >View Low Stock</a
-                >
+                  <!-- Stock Health Insights -->
+                  <div class="section-block insights-block">
+                    <h3 class="block-title">
+                      <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                        <path d="M3 17V10M8 17V6M13 17V8M18 17V3" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                      </svg>
+                      Stock Health
+                    </h3>
+                    <div class="insights-content">
+                      <div class="health-bar-container">
+                        <div class="health-bar">
+                          <div 
+                            class="health-bar-fill health-fill-good" 
+                            :style="{width: products.length > 0 ? ((products.length - lowStockCount) / products.length * 100) + '%' : '0%'}"
+                          ></div>
+                          <div 
+                            class="health-bar-fill health-fill-warning" 
+                            :style="{width: products.length > 0 ? (lowStockCount / products.length * 100) + '%' : '0%'}"
+                          ></div>
+                        </div>
+                        <div class="health-legend">
+                          <div class="legend-item">
+                            <span class="legend-dot legend-dot-good"></span>
+                            <span>In Stock ({{ products.length > 0 ? Math.round((products.length - lowStockCount) / products.length * 100) : 0 }}%)</span>
+                          </div>
+                          <div class="legend-item">
+                            <span class="legend-dot legend-dot-warning"></span>
+                            <span>Low Stock ({{ products.length > 0 ? Math.round(lowStockCount / products.length * 100) : 0 }}%)</span>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="insights-stats">
+                        <div class="insight-stat">
+                          <span class="insight-stat-value">{{ products.length }}</span>
+                          <span class="insight-stat-label">Total SKUs</span>
+                        </div>
+                        <div class="insight-stat">
+                          <span class="insight-stat-value">{{ getTotalStock() }}</span>
+                          <span class="insight-stat-label">Total Units</span>
+                        </div>
+                        <div class="insight-stat">
+                          <span class="insight-stat-value">{{ getUniqueCategories() }}</span>
+                          <span class="insight-stat-label">Categories</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="dashboard-col-side">
+                  <!-- Tips Widget -->
+                  <div class="section-block tips-block">
+                    <h3 class="block-title">
+                      <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                        <circle cx="10" cy="8" r="5" stroke="currentColor" stroke-width="1.5"/>
+                        <path d="M8 13V17M12 13V17M7 17H13" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                      </svg>
+                      Tips & Suggestions
+                    </h3>
+                    <div class="tips-list">
+                      <div class="tip-item" v-if="lowStockCount > 0">
+                        <div class="tip-icon tip-icon-warning">⚠️</div>
+                        <div class="tip-content">
+                          <strong>{{ lowStockCount }} items need restocking</strong>
+                          <p>Check the Low Stock page to review items below minimum levels.</p>
+                        </div>
+                      </div>
+                      <div class="tip-item" v-else>
+                        <div class="tip-icon tip-icon-success">✓</div>
+                        <div class="tip-content">
+                          <strong>All stock levels are healthy!</strong>
+                          <p>Great job keeping your inventory well-stocked.</p>
+                        </div>
+                      </div>
+                      <div class="tip-item">
+                        <div class="tip-icon tip-icon-info">💡</div>
+                        <div class="tip-content">
+                          <strong>Export regularly</strong>
+                          <p>Download CSV backups of your inventory for safekeeping.</p>
+                        </div>
+                      </div>
+                      <div class="tip-item" v-if="products.length === 0">
+                        <div class="tip-icon tip-icon-info">📦</div>
+                        <div class="tip-content">
+                          <strong>Get started</strong>
+                          <p>Add your first product to begin tracking inventory.</p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Info Block -->
+                  <div class="section-block info-block">
+                    <p>
+                      <strong>Navigate:</strong> Add or edit products in <strong>Products</strong>, review items below minimum in <strong>Low Stock</strong>, and see all movements in <strong>History</strong>.
+                    </p>
+                  </div>
+
+                  <!-- Page Actions -->
+                  <div class="section-actions">
+                    <a href="#/products" class="btn btn-primary">
+                      <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+                        <path d="M3 6L9 3L15 6V12L9 15L3 12V6Z" stroke="currentColor" stroke-width="1.5"/>
+                      </svg>
+                      Go to Products
+                    </a>
+                    <a
+                      href="#/alerts"
+                      class="btn btn-warning"
+                      v-if="lowStockCount > 0"
+                    >
+                      <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+                        <path d="M9 2L2 15H16L9 2Z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+                      </svg>
+                      View Low Stock
+                    </a>
+                  </div>
+                </div>
               </div>
             </section>
 
-            <!-- Products Page -->
+            <!-- ============================================
+                 PRODUCTS PAGE (Enhanced)
+                 ============================================ -->
             <section
               v-if="currentPage === 'products'"
               class="page-section animate-fade-in"
@@ -165,15 +909,25 @@
                 <div class="header-actions">
                   <button
                     @click="showLowStockOnly = !showLowStockOnly"
-                    :class="['btn', showLowStockOnly ? 'btn-warning' : 'btn-secondary']"
+                    :class="['btn btn-filter', showLowStockOnly ? 'btn-filter-active' : '']"
                   >
+                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                      <path d="M2 4H14M4 8H12M6 12H10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                    </svg>
                     {{ showLowStockOnly ? 'Show All' : 'Low Stock Only' }}
                   </button>
                   <button @click="exportCSV" class="btn btn-success">
+                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                      <path d="M8 3V11M8 11L5 8M8 11L11 8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                      <path d="M3 13H13" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                    </svg>
                     Export CSV
                   </button>
                   <button @click="showAddModal = true" class="btn btn-primary">
-                    + Add Product
+                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                      <path d="M8 3V13M3 8H13" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                    </svg>
+                    Add Product
                   </button>
                 </div>
               </header>
@@ -183,24 +937,48 @@
                 class="alert alert-warning alert-animate"
               >
                 <span class="alert-icon">⚠️</span>
-                {{ lowStockCount }} product(s) below minimum stock level
+                <div class="alert-content">
+                  <strong>{{ lowStockCount }} product(s)</strong> below minimum stock level
+                </div>
+                <a href="#/alerts" class="alert-action">View all →</a>
               </div>
 
               <div
                 v-if="alertMessage"
                 :class="['alert', alertType, 'alert-animate']"
               >
+                <span class="alert-icon" v-if="alertType === 'success'">✓</span>
+                <span class="alert-icon" v-else>!</span>
                 {{ alertMessage }}
               </div>
 
               <div class="table-section">
                 <div v-if="isLoading" class="loading-indicator">
                   <div class="spinner"></div>
-                  <p>Loading...</p>
+                  <p>Loading products...</p>
                 </div>
 
                 <div v-else class="table-wrapper">
-                  <table class="data-table">
+                  <!-- Empty State -->
+                  <div v-if="filteredProducts.length === 0 && !showLowStockOnly" class="empty-state empty-state-large">
+                    <div class="empty-state-icon">📦</div>
+                    <h3>No products yet</h3>
+                    <p>Start building your inventory by adding your first product.</p>
+                    <button @click="showAddModal = true" class="btn btn-primary">
+                      <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                        <path d="M8 3V13M3 8H13" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                      </svg>
+                      Add Your First Product
+                    </button>
+                  </div>
+
+                  <div v-else-if="filteredProducts.length === 0 && showLowStockOnly" class="empty-state">
+                    <div class="empty-state-icon">✓</div>
+                    <p>No low-stock items. All products are above minimum levels.</p>
+                    <button @click="showLowStockOnly = false" class="btn btn-secondary">Show All Products</button>
+                  </div>
+
+                  <table v-else class="data-table">
                     <thead>
                       <tr>
                         <th>SKU</th>
@@ -213,24 +991,37 @@
                       </tr>
                     </thead>
                     <tbody>
-                      <tr v-if="filteredProducts.length === 0">
-                        <td colspan="8" class="text-center empty-cell">
-                          No products yet
-                        </td>
-                      </tr>
                       <tr
                         v-for="(product, i) in filteredProducts"
                         :key="product.id"
                         class="table-row-animate"
+                        :class="{'row-warning': product.current_stock <= product.min_stock}"
                         :style="{'--row-delay': (i % 20) * 0.02 + 's'}"
                       >
                         <td><span class="cell-sku">{{ product.sku }}</span></td>
-                        <td>{{ product.name }}</td>
-                        <td>{{ product.category || '—' }}</td>
+                        <td>
+                          <div class="cell-product-name">
+                            {{ product.name }}
+                            <span v-if="product.current_stock <= product.min_stock" class="stock-badge stock-badge-low">Low</span>
+                          </div>
+                        </td>
+                        <td>
+                          <span class="cell-category" v-if="product.category">{{ product.category }}</span>
+                          <span class="cell-empty" v-else>—</span>
+                        </td>
                         <td
                           :class="{'low-stock': product.current_stock <= product.min_stock}"
                         >
-                          {{ product.current_stock }}
+                          <div class="cell-stock">
+                            <span class="stock-value">{{ product.current_stock }}</span>
+                            <div class="stock-mini-bar">
+                              <div 
+                                class="stock-mini-fill" 
+                                :class="product.current_stock <= product.min_stock ? 'fill-warning' : 'fill-good'"
+                                :style="{width: Math.min((product.current_stock / Math.max(product.min_stock * 2, 1)) * 100, 100) + '%'}"
+                              ></div>
+                            </div>
+                          </div>
                         </td>
                         <td>{{ product.min_stock }}</td>
                         <td class="cell-desc">
@@ -241,20 +1032,31 @@
                             <button
                               @click="showStockModal(product)"
                               class="btn btn-sm btn-info"
+                              title="Stock In/Out"
                             >
+                              <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+                                <path d="M7 2V12M2 7H12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                              </svg>
                               Stock
                             </button>
                             <button
                               @click="editProduct(product)"
                               class="btn btn-sm btn-secondary"
+                              title="Edit product"
                             >
+                              <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+                                <path d="M10 2L12 4L5 11H3V9L10 2Z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+                              </svg>
                               Edit
                             </button>
                             <button
                               @click="deleteProduct(product.id)"
                               class="btn btn-sm btn-danger"
+                              title="Delete product"
                             >
-                              Delete
+                              <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+                                <path d="M3 4H11M5 4V3C5 2.44772 5.44772 2 6 2H8C8.55228 2 9 2.44772 9 3V4M4 4V11C4 11.5523 4.44772 12 5 12H9C9.55228 12 10 11.5523 10 11V4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                              </svg>
                             </button>
                           </div>
                         </td>
@@ -265,17 +1067,33 @@
               </div>
             </section>
 
-            <!-- Low Stock (Alerts) Page -->
+            <!-- ============================================
+                 LOW STOCK (Alerts) PAGE (Enhanced)
+                 ============================================ -->
             <section
               v-if="currentPage === 'alerts'"
               class="page-section animate-fade-in"
             >
               <header class="section-header">
-                <h1 class="page-title">Low Stock</h1>
+                <h1 class="page-title">Low Stock Alerts</h1>
                 <p class="page-subtitle">
-                  Products at or below minimum stock level
+                  Products at or below minimum stock level that need attention
                 </p>
               </header>
+
+              <!-- Explanation Banner -->
+              <div class="info-banner">
+                <div class="info-banner-icon">
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                    <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/>
+                    <path d="M12 8V12M12 16V16.5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                  </svg>
+                </div>
+                <div class="info-banner-content">
+                  <strong>What is this?</strong>
+                  <p>These items have fallen below their minimum stock threshold. Consider restocking soon to avoid running out.</p>
+                </div>
+              </div>
 
               <div
                 v-if="alertMessage"
@@ -290,36 +1108,55 @@
               </div>
               <div
                 v-else-if="lowStockProducts.length === 0"
-                class="empty-state"
+                class="empty-state empty-state-success"
               >
                 <div class="empty-state-icon">✓</div>
-                <p>
-                  No low-stock items. All products are above minimum levels.
-                </p>
+                <h3>All stock levels are healthy!</h3>
+                <p>No products are below their minimum stock level. Great job!</p>
+                <a href="#/products" class="btn btn-primary">View All Products</a>
               </div>
               <div v-else class="alerts-list">
                 <div
                   v-for="(p, i) in lowStockProducts"
                   :key="p.id"
                   class="card card-animate alert-card"
+                  :class="{'alert-card-critical': p.current_stock === 0}"
                   :style="{'--delay': i * 0.04 + 's'}"
                 >
                   <div class="alert-item">
+                    <div class="alert-item-status">
+                      <span v-if="p.current_stock === 0" class="status-badge status-critical">Critical</span>
+                      <span v-else class="status-badge status-low">Low</span>
+                    </div>
                     <div class="alert-item-info">
                       <h3>{{ p.name }}</h3>
                       <span class="meta"
-                        >{{ p.sku }} · {{ p.category || '—' }}</span
+                        >{{ p.sku }} · {{ p.category || 'Uncategorized' }}</span
                       >
                     </div>
                     <div class="alert-item-stock">
-                      {{ p.current_stock }} / {{ p.min_stock }} min
+                      <div class="stock-display">
+                        <span class="stock-current">{{ p.current_stock }}</span>
+                        <span class="stock-separator">/</span>
+                        <span class="stock-min">{{ p.min_stock }} min</span>
+                      </div>
+                      <div class="stock-bar">
+                        <div 
+                          class="stock-bar-fill" 
+                          :class="p.current_stock === 0 ? 'fill-critical' : 'fill-warning'"
+                          :style="{width: (p.current_stock / p.min_stock * 100) + '%'}"
+                        ></div>
+                      </div>
                     </div>
-                    <div class="header-actions">
+                    <div class="alert-item-actions">
                       <button
                         @click="showStockModal(p)"
-                        class="btn btn-sm btn-info"
+                        class="btn btn-sm btn-primary"
                       >
-                        Stock
+                        <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+                          <path d="M7 2V12M2 7H12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                        </svg>
+                        Restock
                       </button>
                       <button
                         @click="editProduct(p)"
@@ -333,14 +1170,16 @@
               </div>
             </section>
 
-            <!-- Transaction History Page -->
+            <!-- ============================================
+                 TRANSACTION HISTORY PAGE (Enhanced)
+                 ============================================ -->
             <section
               v-if="currentPage === 'history'"
               class="page-section animate-fade-in"
             >
               <header class="section-header">
                 <h1 class="page-title">Transaction History</h1>
-                <p class="page-subtitle">All stock in and out movements</p>
+                <p class="page-subtitle">Complete log of all stock movements and changes</p>
               </header>
 
               <div
@@ -352,11 +1191,13 @@
 
               <div v-if="historyLoading" class="loading-indicator">
                 <div class="spinner"></div>
-                <p>Loading...</p>
+                <p>Loading history...</p>
               </div>
               <div v-else-if="stockHistory.length === 0" class="empty-state">
                 <div class="empty-state-icon">📋</div>
-                <p>No transactions yet.</p>
+                <h3>No transactions yet</h3>
+                <p>Stock movements will appear here when you add or remove inventory.</p>
+                <a href="#/products" class="btn btn-primary">Go to Products</a>
               </div>
               <div v-else class="table-section">
                 <div class="table-wrapper history-table">
@@ -378,13 +1219,30 @@
                         class="table-row-animate"
                         :style="{'--row-delay': (i % 30) * 0.02 + 's'}"
                       >
-                        <td>{{ formatDate(t.created_at) }}</td>
-                        <td>{{ t.product_name }}</td>
-                        <td>{{ t.sku }}</td>
-                        <td :class="t.type === 'in' ? 'type-in' : 'type-out'">
-                          {{ t.type === 'in' ? 'In' : 'Out' }}
+                        <td>
+                          <div class="cell-date">
+                            <span class="date-main">{{ formatDatePrimary(t.created_at) }}</span>
+                            <span class="date-time">{{ formatDateTime(t.created_at) }}</span>
+                          </div>
                         </td>
-                        <td>{{ t.quantity }}</td>
+                        <td>{{ t.product_name }}</td>
+                        <td><span class="cell-sku">{{ t.sku }}</span></td>
+                        <td>
+                          <span :class="['type-badge', t.type === 'in' ? 'type-in' : 'type-out']">
+                            <svg v-if="t.type === 'in'" width="14" height="14" viewBox="0 0 14 14" fill="none">
+                              <path d="M7 10V4M7 4L4 7M7 4L10 7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                            <svg v-else width="14" height="14" viewBox="0 0 14 14" fill="none">
+                              <path d="M7 4V10M7 10L4 7M7 10L10 7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                            {{ t.type === 'in' ? 'Stock In' : 'Stock Out' }}
+                          </span>
+                        </td>
+                        <td>
+                          <span :class="['qty-badge', t.type === 'in' ? 'qty-in' : 'qty-out']">
+                            {{ t.type === 'in' ? '+' : '-' }}{{ t.quantity }}
+                          </span>
+                        </td>
                         <td class="cell-desc">{{ t.notes || '—' }}</td>
                       </tr>
                     </tbody>
@@ -394,45 +1252,63 @@
             </section>
           </div>
         </main>
+
+        <!-- Footer -->
+        <footer class="app-footer">
+          <div class="container">
+            <p>WareHouse Control © 2024 · Built for inventory management</p>
+          </div>
+        </footer>
       </div>
 
-      <!-- Add/Edit Product Modal -->
+      <!-- ============================================
+           ADD/EDIT PRODUCT MODAL (Enhanced)
+           ============================================ -->
       <transition name="modal">
         <div
           v-if="showAddModal || showEditModal"
           class="modal"
           @click.self="closeModal"
         >
-          <div class="modal-content">
-            <h2>{{ showEditModal ? 'Edit Product' : 'Add Product' }}</h2>
-            <form @submit.prevent="saveProduct">
-              <div class="form-group">
-                <label>SKU *</label>
-                <input
-                  type="text"
-                  v-model.trim="productForm.sku"
-                  required
-                  maxlength="50"
-                  placeholder="e.g. PROD-001"
-                />
+          <div class="modal-content modal-animate">
+            <div class="modal-header">
+              <h2>{{ showEditModal ? 'Edit Product' : 'Add New Product' }}</h2>
+              <button @click="closeModal" class="modal-close" aria-label="Close modal">
+                <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                  <path d="M5 5L15 15M15 5L5 15" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                </svg>
+              </button>
+            </div>
+            <form @submit.prevent="saveProduct" class="modal-form">
+              <div class="form-row">
+                <div class="form-group">
+                  <label>SKU <span class="required">*</span></label>
+                  <input
+                    type="text"
+                    v-model.trim="productForm.sku"
+                    required
+                    maxlength="50"
+                    placeholder="e.g. PROD-001"
+                  />
+                </div>
+                <div class="form-group">
+                  <label>Category</label>
+                  <input
+                    type="text"
+                    v-model.trim="productForm.category"
+                    maxlength="50"
+                    placeholder="e.g. Electronics"
+                  />
+                </div>
               </div>
               <div class="form-group">
-                <label>Product Name *</label>
+                <label>Product Name <span class="required">*</span></label>
                 <input
                   type="text"
                   v-model.trim="productForm.name"
                   required
                   maxlength="100"
-                  placeholder="e.g. Laptop"
-                />
-              </div>
-              <div class="form-group">
-                <label>Category</label>
-                <input
-                  type="text"
-                  v-model.trim="productForm.category"
-                  maxlength="50"
-                  placeholder="e.g. Electronics"
+                  placeholder="e.g. Wireless Bluetooth Headphones"
                 />
               </div>
               <div class="form-group">
@@ -441,7 +1317,7 @@
                   v-model.trim="productForm.description"
                   rows="3"
                   maxlength="500"
-                  placeholder="Product description (optional)"
+                  placeholder="Optional product description..."
                 ></textarea>
               </div>
               <div class="form-row">
@@ -456,7 +1332,7 @@
                   />
                 </div>
                 <div class="form-group">
-                  <label>Min Stock</label>
+                  <label>Minimum Stock</label>
                   <input
                     type="number"
                     v-model.number="productForm.min_stock"
@@ -464,6 +1340,7 @@
                     max="999999"
                     step="1"
                   />
+                  <span class="form-hint">Alert when stock falls below this</span>
                 </div>
               </div>
               <div class="modal-actions">
@@ -474,45 +1351,77 @@
                 >
                   Cancel
                 </button>
-                <button type="submit" class="btn btn-primary">Save</button>
+                <button type="submit" class="btn btn-primary">
+                  <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                    <path d="M3 8L6.5 11.5L13 5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                  {{ showEditModal ? 'Save Changes' : 'Add Product' }}
+                </button>
               </div>
             </form>
           </div>
         </div>
       </transition>
 
-      <!-- Stock In/Out Modal -->
+      <!-- ============================================
+           STOCK IN/OUT MODAL (Enhanced)
+           ============================================ -->
       <transition name="modal">
         <div
           v-if="showStockInOutModal"
           class="modal"
           @click.self="closeStockModal"
         >
-          <div class="modal-content">
-            <h2>Stock: {{ selectedProduct.name }}</h2>
-            <p class="stock-info">
-              Current stock:
-              <strong>{{ selectedProduct.current_stock }}</strong>
-            </p>
+          <div class="modal-content modal-animate">
+            <div class="modal-header">
+              <h2>Update Stock</h2>
+              <button @click="closeStockModal" class="modal-close" aria-label="Close modal">
+                <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                  <path d="M5 5L15 15M15 5L5 15" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                </svg>
+              </button>
+            </div>
+
+            <div class="stock-product-info">
+              <div class="stock-product-name">{{ selectedProduct.name }}</div>
+              <div class="stock-product-sku">{{ selectedProduct.sku }}</div>
+            </div>
+
+            <div class="stock-info">
+              <div class="stock-info-item">
+                <span class="stock-info-label">Current Stock</span>
+                <span class="stock-info-value">{{ selectedProduct.current_stock }}</span>
+              </div>
+              <div class="stock-info-item">
+                <span class="stock-info-label">Min Stock</span>
+                <span class="stock-info-value">{{ selectedProduct.min_stock }}</span>
+              </div>
+            </div>
 
             <div class="stock-tabs">
               <button
                 @click="stockOperation = 'in'"
-                :class="['tab-btn', stockOperation === 'in' ? 'active' : '']"
+                :class="['tab-btn', stockOperation === 'in' ? 'active tab-in' : '']"
               >
+                <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+                  <path d="M9 13V5M9 5L5 9M9 5L13 9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
                 Stock In
               </button>
               <button
                 @click="stockOperation = 'out'"
-                :class="['tab-btn', stockOperation === 'out' ? 'active' : '']"
+                :class="['tab-btn', stockOperation === 'out' ? 'active tab-out' : '']"
               >
+                <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+                  <path d="M9 5V13M9 13L5 9M9 13L13 9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
                 Stock Out
               </button>
             </div>
 
-            <form @submit.prevent="submitStockOperation">
+            <form @submit.prevent="submitStockOperation" class="modal-form">
               <div class="form-group">
-                <label>Quantity *</label>
+                <label>Quantity <span class="required">*</span></label>
                 <input
                   type="number"
                   v-model.number="stockForm.quantity"
@@ -520,16 +1429,22 @@
                   max="100000"
                   step="1"
                   required
-                  placeholder="1"
+                  placeholder="Enter quantity"
                 />
+                <span class="form-hint" v-if="stockOperation === 'in'">
+                  New stock will be: {{ selectedProduct.current_stock + (stockForm.quantity || 0) }}
+                </span>
+                <span class="form-hint" v-else>
+                  New stock will be: {{ Math.max(0, selectedProduct.current_stock - (stockForm.quantity || 0)) }}
+                </span>
               </div>
               <div class="form-group">
                 <label>Notes</label>
                 <textarea
                   v-model.trim="stockForm.notes"
-                  rows="3"
+                  rows="2"
                   maxlength="200"
-                  placeholder="Optional notes"
+                  placeholder="Optional notes (e.g., supplier, reason)"
                 ></textarea>
               </div>
               <div class="modal-actions">
@@ -544,7 +1459,13 @@
                   type="submit"
                   :class="['btn', stockOperation === 'in' ? 'btn-success' : 'btn-warning']"
                 >
-                  {{ stockOperation === 'in' ? 'Stock In' : 'Stock Out' }}
+                  <svg v-if="stockOperation === 'in'" width="16" height="16" viewBox="0 0 16 16" fill="none">
+                    <path d="M8 11V5M8 5L5 8M8 5L11 8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                  <svg v-else width="16" height="16" viewBox="0 0 16 16" fill="none">
+                    <path d="M8 5V11M8 11L5 8M8 11L11 8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                  {{ stockOperation === 'in' ? 'Add Stock' : 'Remove Stock' }}
                 </button>
               </div>
             </form>
@@ -553,6 +1474,6 @@
       </transition>
     </div>
 
-    <script src="app.js"></script>
+    <script src="./app.js"></script>
   </body>
 </html>
